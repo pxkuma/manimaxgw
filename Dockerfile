@@ -22,7 +22,7 @@ WORKDIR /manim
 
 # Copy vrihi.sh and make it executable
 COPY vrihi.sh /usr/local/bin/vrihi.sh
-RUN chmod +x /usr/local/bin/vrihi.sh
+RUN sed -i 's/\r$//' /usr/local/bin/vrihi.sh && chmod +x /usr/local/bin/vrihi.sh
 
 # Default entrypoint: vrihi.sh (interactive menu-driven)
 ENTRYPOINT ["/usr/local/bin/vrihi.sh"]
