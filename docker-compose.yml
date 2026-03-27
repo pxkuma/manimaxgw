@@ -13,4 +13,4 @@ services:
     stdin_open: true
     tty: true
     entrypoint: /bin/bash
-    command: vrihi.sh
+    command: /usr/local/bin/vrihi.sh
