@@ -1,0 +1,64 @@
+# Environment variables (keeping .env tracked)
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Cache
+.cache/
+*.cache
+
+# Media files
+media/
+*.mp4
+*.mp3
+*.wav
+*.avi
+*.mov
+
+# Logs
+logs/
+*.log
+
+# Archive
+archive/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+temp_*.py
+*.tmp
+*.temp
+
+# Manim specific
+Tex/
+texts/
