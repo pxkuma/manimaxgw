@@ -14,14 +14,16 @@ echo -e "\e[0m"
 
 echo -e "\e[1;32m   >>> Vrihi - The Universal Video Pipeline <<<\e[0m\n"
 
-# Ensure the target production directory exists on your Ubuntu host
+# Ensure the target production directory exists
 mkdir -p ../Videos/production
 
-# Check if Docker image exists
-if ! docker image inspect ai-video-factory:latest >/dev/null 2>&1; then
-    echo -e "\n❌ \e[31mError: Docker image 'ai-video-factory' not found.\e[0m"
-    echo -e "Build it first with: \e[1;33mdocker build -t ai-video-factory .\e[0m\n"
-    exit 1
+if [ ! -f /.dockerenv ]; then
+    # Check if Docker image exists (only if running on host)
+    if ! docker image inspect ai-video-factory:latest >/dev/null 2>&1; then
+        echo -e "\n❌ \e[31mError: Docker image 'ai-video-factory' not found.\e[0m"
+        echo -e "Build it first with: \e[1;33mdocker build -t ai-video-factory .\e[0m\n"
+        exit 1
+    fi
 fi
 
 echo -e "Choose your deployment mode:"
@@ -44,7 +46,11 @@ if [ "$MODE" == "1" ]; then
     FINAL_NAME="${SAFE_TOPIC}_${TIMESTAMP}.mp4"
 
     echo -e "\n🚀 Booting Vrihi AI Engine for: \e[1;36m$TOPIC\e[0m\n"
-    docker run --rm --env-file .env -v "$(pwd)":/manim ai-video-factory python auto_video.py "$TOPIC"
+    if [ -f /.dockerenv ]; then
+        python auto_video.py "$TOPIC"
+    else
+        docker run --rm --env-file .env -v "$(pwd)":/manim -v "$(pwd)/../Videos":/Videos ai-video-factory python auto_video.py "$TOPIC"
+    fi
     
     # Post-processing: Move and rename the output
     if [ -f "final_production.mp4" ]; then
@@ -68,7 +74,11 @@ elif [ "$MODE" == "2" ]; then
     FINAL_NAME="${SAFE_NAME}_render_${TIMESTAMP}.mp4"
 
     echo -e "\n🚀 Booting Vrihi Render Engine for: \e[1;36m$FILENAME\e[0m\n"
-    docker run --rm --env-file .env -v "$(pwd)":/manim ai-video-factory python autorun.py "$FILENAME"
+    if [ -f /.dockerenv ]; then
+        python autorun.py "$FILENAME"
+    else
+        docker run --rm --env-file .env -v "$(pwd)":/manim -v "$(pwd)/../Videos":/Videos ai-video-factory python autorun.py "$FILENAME"
+    fi
     
     # Grab the latest rendered file from the media folder and move it
     LATEST_RENDER=$(ls -t media/${SAFE_NAME}_full_render*.mp4 2>/dev/null | head -n 1)
