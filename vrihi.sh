@@ -49,7 +49,7 @@ if [ "$MODE" == "1" ]; then
     if [ -f /.dockerenv ]; then
         python auto_video.py "$TOPIC"
     else
-        docker run --rm --env-file .env -v "$(pwd)":/manim -v "$(pwd)/../Videos":/Videos ai-video-factory python auto_video.py "$TOPIC"
+        docker run --rm --env-file .env --entrypoint bash -v "$(pwd)":/manim -v "$(pwd)/../Videos":/Videos ai-video-factory -c "python auto_video.py '$TOPIC'"
     fi
     
     # Post-processing: Move and rename the output
@@ -77,7 +77,7 @@ elif [ "$MODE" == "2" ]; then
     if [ -f /.dockerenv ]; then
         python autorun.py "$FILENAME"
     else
-        docker run --rm --env-file .env -v "$(pwd)":/manim -v "$(pwd)/../Videos":/Videos ai-video-factory python autorun.py "$FILENAME"
+        docker run --rm --env-file .env --entrypoint bash -v "$(pwd)":/manim -v "$(pwd)/../Videos":/Videos ai-video-factory -c "python autorun.py '$FILENAME'"
     fi
     
     # Grab the latest rendered file from the media folder and move it
