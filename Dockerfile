@@ -20,5 +20,9 @@ RUN pip install --no-cache-dir \
 # Set working directory
 WORKDIR /manim
 
-# We REMOVE the ENTRYPOINT here so the container acts like a raw Ubuntu 
-# environment. This allows us to run different scripts on demand!
+# Copy vrihi.sh and make it executable
+COPY vrihi.sh /usr/local/bin/vrihi.sh
+RUN chmod +x /usr/local/bin/vrihi.sh
+
+# Default entrypoint: vrihi.sh (interactive menu-driven)
+ENTRYPOINT ["/usr/local/bin/vrihi.sh"]
