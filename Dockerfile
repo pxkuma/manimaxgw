@@ -7,12 +7,11 @@ USER root
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     ffmpeg \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install all Python dependencies for AI, TTS, and Math
+# Install Python dependencies (Ollama-only pipeline, no external API deps)
 RUN pip install --no-cache-dir \
-    openai \
-    google-genai \
     edge-tts \
     numpy \
     scipy

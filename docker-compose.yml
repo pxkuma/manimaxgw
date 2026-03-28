@@ -1,4 +1,69 @@
 services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: vrihi_ollama
+    ports:
+      - "11435:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Use this instead if you have an NVIDIA GPU:
+  #   docker compose --profile nvidia up -d ollama-nvidia
+  ollama-nvidia:
+    image: ollama/ollama:latest
+    container_name: vrihi_ollama
+    profiles: ["nvidia"]
+    ports:
+      - "11435:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Use this instead if you have an Intel Arc GPU:
+  #   docker compose --profile intel up -d ollama-intel
+  ollama-intel:
+    image: ollama/ollama:latest
+    container_name: vrihi_ollama
+    profiles: ["intel"]
+    ports:
+      - "11435:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    devices:
+      - /dev/dri:/dev/dri
+    group_add:
+      - video
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
   vrihi:
     build:
       context: .
@@ -7,10 +72,18 @@ services:
     container_name: vrihi_container
     volumes:
       - .:/manim
-      - ../Videos/production:/manim/../Videos/production
+      - ../Videos/production:/Videos/production
     env_file:
       - .env
+    environment:
+      - OLLAMA_URL=http://vrihi_ollama:11434/api/generate
+      - OLLAMA_MODEL=deepseek-v3.1:671b-cloud
     stdin_open: true
     tty: true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     entrypoint: /bin/bash
     command: /usr/local/bin/vrihi.sh
+
+volumes:
+  ollama_data:

@@ -17,14 +17,38 @@ echo -e "\e[1;32m   >>> Vrihi - The Universal Video Pipeline <<<\e[0m\n"
 # Ensure the target production directory exists
 mkdir -p ../Videos/production
 
-if [ ! -f /.dockerenv ]; then
-    # Check if Docker image exists (only if running on host)
-    if ! docker image inspect ai-video-factory:latest >/dev/null 2>&1; then
-        echo -e "\n❌ \e[31mError: Docker image 'ai-video-factory' not found.\e[0m"
-        echo -e "Build it first with: \e[1;33mdocker build -t ai-video-factory .\e[0m\n"
-        exit 1
+# --- Ollama Health Check ---
+check_ollama() {
+    local ollama_base="${OLLAMA_URL:-http://localhost:11434/api/generate}"
+    # Extract base URL (remove /api/generate)
+    local ollama_host="${ollama_base%/api/generate}"
+    local model="${OLLAMA_MODEL:-deepseek-v3.1:671b-cloud}"
+    
+    echo -e "\e[1;33m[*] Checking Ollama connectivity...\e[0m"
+    
+    # Try to connect to Ollama
+    if curl -sf "${ollama_host}/" > /dev/null 2>&1; then
+        echo -e "\e[1;32m  ✓ Ollama is reachable at ${ollama_host}\e[0m"
+    else
+        echo -e "\e[31m  ✗ Cannot reach Ollama at ${ollama_host}\e[0m"
+        echo -e "    Make sure Ollama is running. If using Docker Compose, run: \e[1;33mdocker compose up -d\e[0m"
+        return 1
     fi
-fi
+    
+    # Check if the model is available
+    if curl -sf "${ollama_host}/api/tags" 2>/dev/null | grep -q "$model"; then
+        echo -e "\e[1;32m  ✓ Model '${model}' is available\e[0m"
+    else
+        echo -e "\e[1;33m  ⚠ Model '${model}' not found. Pulling it now (this may take a while)...\e[0m"
+        curl -sf "${ollama_host}/api/pull" -d "{\"name\": \"${model}\"}" || true
+    fi
+    
+    echo ""
+    return 0
+}
+
+
+
 
 echo -e "Choose your deployment mode:"
 echo -e "  \e[1;33m[1]\e[0m AI Prompt -> Full Video (Script, TTS, Visuals)"
@@ -40,16 +64,28 @@ if [ "$MODE" == "1" ]; then
         exit 1
     fi
     
-    # Generate a clean, unique filename: e.g., "sine_waves_20260327_153045.mp4"
-    SAFE_TOPIC=$(echo "$TOPIC" | tr '[:upper:]' '[:lower:]' | tr ' ' '_' | tr -cd 'a-z0-9_')
+    # Generate a clean, unique filename
+    SAFE_TOPIC=$(echo "$TOPIC" | tr '[:upper:]' '[:lower:]' | tr ' ' '_' | tr -cd 'a-z0-9_' | cut -c 1-50)
     TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
     FINAL_NAME="${SAFE_TOPIC}_${TIMESTAMP}.mp4"
 
     echo -e "\n🚀 Booting Vrihi AI Engine for: \e[1;36m$TOPIC\e[0m\n"
+    
     if [ -f /.dockerenv ]; then
+        # Inside Docker container - Ollama is accessible via compose network
+        check_ollama
         python auto_video.py "$TOPIC"
     else
-        docker run --rm --env-file .env --entrypoint bash -v "$(pwd)":/manim -v "$(pwd)/../Videos":/Videos ai-video-factory -c "python auto_video.py '$TOPIC'"
+        # On host - use host Ollama directly
+        export OLLAMA_URL="${OLLAMA_URL:-http://localhost:11434/api/generate}"
+        export OLLAMA_MODEL="${OLLAMA_MODEL:-deepseek-v3.1:671b-cloud}"
+        # Activate venv if it exists
+        SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+        if [ -f "$SCRIPT_DIR/.venv/bin/activate" ]; then
+            source "$SCRIPT_DIR/.venv/bin/activate"
+        fi
+        check_ollama
+        python auto_video.py "$TOPIC"
     fi
     
     # Post-processing: Move and rename the output
@@ -77,7 +113,9 @@ elif [ "$MODE" == "2" ]; then
     if [ -f /.dockerenv ]; then
         python autorun.py "$FILENAME"
     else
-        docker run --rm --env-file .env --entrypoint bash -v "$(pwd)":/manim -v "$(pwd)/../Videos":/Videos ai-video-factory -c "python autorun.py '$FILENAME'"
+        docker compose run --rm \
+            --entrypoint bash \
+            vrihi -c "python autorun.py '$FILENAME'"
     fi
     
     # Grab the latest rendered file from the media folder and move it
