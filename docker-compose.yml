@@ -1,7 +1,9 @@
 services:
+
+  # ── 1. Ollama — LLM inference ──────────────────────────────────────────────
   ollama:
     image: ollama/ollama:latest
-    container_name: vrihi_ollama
+    container_name: manimax_ollama
     ports:
       - "11435:11434"
     volumes:
@@ -15,11 +17,10 @@ services:
       timeout: 10s
       retries: 5
 
-  # Use this instead if you have an NVIDIA GPU:
-  #   docker compose --profile nvidia up -d ollama-nvidia
+  # GPU variant — docker compose --profile nvidia up -d
   ollama-nvidia:
     image: ollama/ollama:latest
-    container_name: vrihi_ollama
+    container_name: manimax_ollama_nvidia
     profiles: ["nvidia"]
     ports:
       - "11435:11434"
@@ -41,11 +42,10 @@ services:
       timeout: 10s
       retries: 5
 
-  # Use this instead if you have an Intel Arc GPU:
-  #   docker compose --profile intel up -d ollama-intel
+  # Intel Arc variant — docker compose --profile intel up -d
   ollama-intel:
     image: ollama/ollama:latest
-    container_name: vrihi_ollama
+    container_name: manimax_ollama_intel
     profiles: ["intel"]
     ports:
       - "11435:11434"
@@ -64,26 +64,51 @@ services:
       timeout: 10s
       retries: 5
 
-  vrihi:
+  # ── 2. Renderer — Python / Manim / ffmpeg video pipeline ──────────────────
+  renderer:
     build:
-      context: .
+      context: ./renderer
       dockerfile: Dockerfile
-    image: ai-video-factory:latest
-    container_name: vrihi_container
+    image: manimax-renderer:latest
+    container_name: manimax_renderer
     volumes:
-      - .:/manim
-      - ../Videos/production:/Videos/production
+      - manimax_media:/media
     env_file:
       - .env
     environment:
-      - OLLAMA_URL=http://vrihi_ollama:11434/api/generate
-      - OLLAMA_MODEL=deepseek-v3.1:671b-cloud
-    stdin_open: true
-    tty: true
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    entrypoint: /bin/bash
-    command: /usr/local/bin/vrihi.sh
+      - OLLAMA_URL=http://ollama:11434/api/generate
+      - MEDIA_DIR=/media
+      - IS_DOCKER=true
+    depends_on:
+      ollama:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5050/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # ── 3. Web — Node.js + Socket.io frontend ─────────────────────────────────
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    image: manimax-web:latest
+    container_name: manimax_web
+    ports:
+      - "3020:3020"
+    volumes:
+      - manimax_media:/media
+    environment:
+      - RENDERER_URL=http://renderer:5050
+      - MEDIA_DIR=/media
+      - PORT=3020
+    depends_on:
+      renderer:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   ollama_data:
+  manimax_media:

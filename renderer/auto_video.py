@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Vrihi - AI Teaching Video Generator (v4)
+Manimax - AI Teaching Video Generator (v4)
 Pipeline: PLAN (GPT-5) -> CODE DRAFT (Qwen3) -> CODE REFINE (DeepSeek)
 - Proper JSON parsing (no fragile find/rfind hacks)
 - Teaching-first narration (actually explains concepts)
@@ -513,7 +513,7 @@ def finalize(chunks):
 
 def main():
     print("\n" + "="*54)
-    log("Vrihi Teaching Video Generator (GPT-5 + Qwen + DeepSeek)", "video")
+    log("Manimax AI Teaching Video Generator (GPT-5 + Qwen + DeepSeek)", "video")
     log(f"Topic    : {TOPIC}", "info")
     log(f"Duration : {TARGET_DURATION}s | {NUM_CHAPTERS} chapters | ~{CHAPTER_DURATION}s each", "info")
     print("="*54 + "\n")

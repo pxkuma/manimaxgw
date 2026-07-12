@@ -1,0 +1,70 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main          # triggers on every push to main
+
+jobs:
+  deploy:
+    name: SSH Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. Checkout (needed so we can verify the push went through) ──────────
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── 2. SSH into EC2 and deploy ───────────────────────────────────────────
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host:        ${{ secrets.EC2_HOST }}
+          username:    ${{ secrets.EC2_USER }}
+          key:         ${{ secrets.EC2_SSH_KEY }}
+          port:        22
+          script: |
+            set -e
+
+            # ── Clone repo on first run, otherwise pull latest ─────────────────
+            if [ ! -d ~/manimax/.git ]; then
+              echo "→ Cloning repo for the first time..."
+              git clone https://github.com/${{ github.repository }}.git ~/manimax
+            else
+              echo "→ Pulling latest changes..."
+              cd ~/manimax
+              git fetch --all
+              git reset --hard origin/main
+            fi
+
+            cd ~/manimax
+
+            # ── Write .env from GitHub secret ──────────────────────────────────
+            # Store your production env as a single GitHub secret named ENV_FILE
+            # (paste the full contents of .env.ec2 into it)
+            echo '${{ secrets.ENV_FILE }}' > .env
+
+            # ── Install Docker if not present ──────────────────────────────────
+            if ! command -v docker &>/dev/null; then
+              echo "→ Installing Docker..."
+              curl -fsSL https://get.docker.com | sudo bash
+              sudo usermod -aG docker $USER
+              sudo systemctl enable --now docker
+              # Re-login to apply group (use sg for current session)
+              exec sg docker "bash -s" << 'DOCKER_INSTALL_DONE'
+              echo "Docker installed."
+            DOCKER_INSTALL_DONE
+            fi
+
+            # ── Build & start containers ───────────────────────────────────────
+            echo "→ Building images..."
+            docker compose build
+
+            echo "→ Starting services..."
+            docker compose up -d
+
+            echo "→ Container status:"
+            docker compose ps
+
+            echo ""
+            echo "✅ Deploy complete — http://${{ secrets.EC2_HOST }}:3020"
