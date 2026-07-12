@@ -90,7 +90,7 @@ TTS_VOICE         = os.getenv("MANIMAX_TTS_VOICE", "en-GB-RyanNeural")
 OLLAMA_URL        = os.getenv("OLLAMA_URL", "http://localhost:11434/api/generate")
 QWEN_MODEL        = os.getenv("QWEN_MODEL", "qwen3-coder:480b-cloud")
 DEEPSEEK_MODEL    = os.getenv("DEEPSEEK_MODEL", "deepseek-v3.2:cloud")
-GITHUB_TOKEN      = os.getenv("GITHUB_TOKEN", "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")
+GITHUB_TOKEN      = os.getenv("GITHUB_TOKEN", "")
 GPT5_URL          = os.getenv("GPT5_URL", "https://models.inference.ai.azure.com/chat/completions")
 
 AI_MAX_RETRIES    = _int("MANIMAX_AI_MAX_RETRIES", 2, lo=0)
