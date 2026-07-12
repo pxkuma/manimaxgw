@@ -157,9 +157,13 @@ def ollama_ai(prompt, model, label="", timeout=180):
         log(f"{model} [{label}] attempt {attempt+1}...", "progress")
         try:
             data = json.dumps({"model": model, "prompt": prompt, "stream": False}).encode()
+            headers = {"Content-Type": "application/json"}
+            token = GITHUB_TOKEN.strip() if GITHUB_TOKEN else ""
+            if token and token != "PLACE_GITHUB_TOKEN_HERE":
+                headers["Authorization"] = f"Bearer {token}"
             req  = urllib.request.Request(
                 OLLAMA_URL, data=data,
-                headers={"Content-Type": "application/json"}
+                headers=headers
             )
             with urllib.request.urlopen(req, timeout=t) as r:
                 raw = json.loads(r.read().decode()).get("response","")
