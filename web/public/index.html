@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manimax STUDIO 3D</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="bg-effects">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+        <div class="grid-overlay"></div>
+    </div>
+
+    <!-- Hidden SVG for circular progress stroke gradient -->
+    <svg class="svg-defs" style="display: none;">
+        <defs>
+            <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ffffff"/>
+                <stop offset="50%" stop-color="#888888"/>
+                <stop offset="100%" stop-color="#444444"/>
+            </linearGradient>
+        </defs>
+    </svg>
+
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                </div>
+                <span class="logo-text">manimax</span>
+            </div>
+            
+            <nav class="nav">
+                <button class="nav-btn active" data-view="generate">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
+                    Studio
+                </button>
+                <button class="nav-btn" data-view="library">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    Archive
+                </button>
+            </nav>
+
+            <div class="status-pill" id="connectionStatus">
+                <span class="status-dot"></span>
+                <span class="status-text">Connected</span>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="main">
+            
+            <!-- Generate View -->
+            <section class="view active" id="generateView">
+                <div class="generate-layout">
+                    
+                    <div class="generate-form-wrapper">
+                        <div class="form-card">
+                            <div class="form-header">
+                                <div class="form-icon">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                </div>
+                                <div>
+                                    <h1 class="form-title">Create a Video</h1>
+                                    <p class="form-subtitle">Turn any idea into a stunning video</p>
+                                </div>
+                            </div>
+
+                            <div class="form-body">
+                                <div class="input-field">
+                                    <label class="field-label">What do you want to learn?</label>
+                                    <div class="input-container">
+                                        <input type="text" id="topicInput" placeholder="e.g. How black holes work, Quantum physics for dummies..." autocomplete="off">
+                                    </div>
+                                    <p class="field-hint">Pro tip: Be specific — "Python lists" beats "programming"</p>
+                                </div>
+
+                                <div class="input-field">
+                                    <label class="field-label">How deep should we go?</label>
+                                    <div class="duration-grid">
+                                        <button class="duration-card" data-duration="quick">
+                                            <span class="duration-label">Quick</span>
+                                            <span class="duration-meta">~45 sec</span>
+                                        </button>
+                                        <button class="duration-card active" data-duration="short">
+                                            <span class="duration-label">Short</span>
+                                            <span class="duration-meta">~2 min</span>
+                                        </button>
+                                        <button class="duration-card" data-duration="medium">
+                                            <span class="duration-label">Medium</span>
+                                            <span class="duration-meta">~5 min</span>
+                                        </button>
+                                        <button class="duration-card" data-duration="long">
+                                            <span class="duration-label">Deep Dive</span>
+                                            <span class="duration-meta">~10 min</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+
+
+                                <button class="generate-btn" id="generateBtn">
+                                    <span class="btn-content">
+                                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                        Generate Video
+                                    </span>
+                                    <span class="btn-loader">
+                                        <svg class="spinner" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="31.4 31.4" stroke-linecap="round"/></svg>
+                                        <span>Generating...</span>
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="generate-preview-wrapper">
+                        
+                        <!-- Idle preview -->
+                        <div class="preview-idle" id="previewIdle">
+                            <div class="preview-visual">
+                                <div class="preview-rings">
+                                    <div class="ring ring-1"></div>
+                                    <div class="ring ring-2"></div>
+                                    <div class="ring ring-3"></div>
+                                </div>
+                                <div class="preview-icon">
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                </div>
+                            </div>
+                            <h3>Ready to generate?</h3>
+                            <p class="preview-tagline">Type a topic and watch it come to life</p>
+                            <div class="features-row">
+                                <div class="feature-tag">Auto Scripts</div>
+                                <div class="feature-tag">AI Voice</div>
+                                <div class="feature-tag">Animations</div>
+                            </div>
+                        </div>
+
+                        <!-- Progress preview -->
+                        <div class="preview-progress hidden" id="previewProgress">
+                            <div class="progress-header">
+                                <div class="progress-info">
+                                    <h3>Creating your video</h3>
+                                    <p id="progressTopic">Topic Output</p>
+                                </div>
+                                <button class="cancel-btn" id="cancelBtn">Cancel</button>
+                            </div>
+
+                            <div class="progress-visual">
+                                <div class="progress-ring-container">
+                                    <svg class="progress-ring" viewBox="0 0 120 120">
+                                        <circle class="progress-ring-bg" cx="60" cy="60" r="54"></circle>
+                                        <circle class="progress-ring-fill" cx="60" cy="60" r="54" id="progressRing"></circle>
+                                    </svg>
+                                    <div class="progress-percent" id="progressPercent">0%</div>
+                                </div>
+                            </div>
+
+                            <!-- Steps expected by JS -->
+                            
+                            <div class="progress-steps">
+                                <div class="step" data-phase="planning">
+                                    <div class="step-indicator"><div class="step-dot"></div></div>
+                                    <div class="step-content"><span class="step-title">Planning chapters</span></div>
+                                </div>
+                                <div class="step" data-phase="generating">
+                                    <div class="step-indicator"><div class="step-dot"></div></div>
+                                    <div class="step-content"><span class="step-title">Writing script</span></div>
+                                </div>
+                                <div class="step" data-phase="audio">
+                                    <div class="step-indicator"><div class="step-dot"></div></div>
+                                    <div class="step-content"><span class="step-title">Generating voice</span></div>
+                                </div>
+                                <div class="step" data-phase="rendering">
+                                    <div class="step-indicator"><div class="step-dot"></div></div>
+                                    <div class="step-content"><span class="step-title">Rendering animations</span></div>
+                                </div>
+                                <div class="step" data-phase="stitching">
+                                    <div class="step-indicator"><div class="step-dot"></div></div>
+                                    <div class="step-content"><span class="step-title">Final touches</span></div>
+                                </div>
+                            </div>
+
+                            <div class="terminal-container">
+                                <div class="terminal-header">
+                                    <div class="terminal-dots"><span></span><span></span><span></span></div>
+                                    <span class="terminal-title">System Log</span>
+                                    <button class="terminal-toggle" id="terminalToggle">[-]</button>
+                                </div>
+                                <div class="terminal-body" id="terminalBody"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- Library View -->
+            <section class="view" id="libraryView">
+                <div class="archive-layout">
+                    
+                    <!-- Left: Projects & Chapters -->
+                    <aside class="archive-sidebar">
+                        <div class="sidebar-section">
+                            <div class="section-header">
+                                <h3>Projects</h3>
+                                <button class="icon-btn small" id="refreshBtn" title="Refresh">↻</button>
+                            </div>
+                            <div class="project-list" id="projectList">
+                                <div class="loading-state">Loading...</div>
+                            </div>
+                        </div>
+                        
+                        <div class="sidebar-section chapters-section hidden" id="chaptersSection">
+                            <div class="section-header">
+                                <h3>Chapters</h3>
+                                <button class="pill-btn small active" id="viewFullBtn">Full Video</button>
+                            </div>
+                            <div class="chapter-list" id="chaptersList"></div>
+                        </div>
+                    </aside>
+
+                    <!-- Right: Video & Code -->
+                    <main class="archive-main">
+                        <div class="archive-content" id="archiveContent">
+                            
+                            <!-- Empty State -->
+                            <div class="archive-empty" id="emptyState">
+                                <div class="empty-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                        <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+                                        <line x1="7" y1="2" x2="7" y2="22"></line>
+                                        <line x1="17" y1="2" x2="17" y2="22"></line>
+                                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                                        <line x1="2" y1="7" x2="7" y2="7"></line>
+                                        <line x1="2" y1="17" x2="7" y2="17"></line>
+                                        <line x1="17" y1="17" x2="22" y2="17"></line>
+                                        <line x1="17" y1="7" x2="22" y2="7"></line>
+                                    </svg>
+                                </div>
+                                <h2>Select a project</h2>
+                                <p>Choose from your generated videos on the left</p>
+                            </div>
+
+                            <!-- Video & Code Section -->
+                            <div class="archive-viewer hidden" id="viewerSection">
+                                <div class="viewer-header">
+                                    <div class="viewer-title">
+                                        <h2 id="videoTitle">Project Title</h2>
+                                        <span class="viewer-badge" id="viewerBadge">Full Video</span>
+                                    </div>
+                                    <button class="download-btn" id="downloadBtn">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                        Download
+                                    </button>
+                                </div>
+                                
+                                <div class="video-container">
+                                    <video id="videoPlayer" controls></video>
+                                </div>
+                                
+                                <div class="code-container">
+                                    <div class="code-header">
+                                        <span class="code-title">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                                            Manim Code
+                                        </span>
+                                        <button class="copy-btn" id="copyCodeBtn">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                            Copy
+                                        </button>
+                                    </div>
+                                    <pre class="code-body"><code id="codeContent">// Select a chapter to view its code</code></pre>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </main>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
