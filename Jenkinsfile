@@ -3,11 +3,9 @@ pipeline {
     agent none
 
     environment {
-        EC2_USER       = 'ubuntu'
-        EC2_HOST       = '13.48.106.251'
-        REPO_PATH      = '/home/ubuntu/vrihi'
-        SONAR_HOST_URL = credentials('sonar-host-url')
-        SONAR_TOKEN    = credentials('sonar-token')
+        EC2_USER  = 'ubuntu'
+        EC2_HOST  = '13.48.106.251'
+        REPO_PATH = '/home/ubuntu/vrihi'
     }
 
     stages {
@@ -44,6 +42,10 @@ pipeline {
                     reuseNode true
                 }
             }
+            environment {
+                SONAR_HOST_URL = 'http://16.171.235.41:9000'
+                SONAR_TOKEN    = credentials('sonar-token')
+            }
             steps {
                 sh """
                     sonar-scanner \
@@ -77,6 +79,11 @@ pipeline {
     }
 
     post {
-        always { cleanWs() }
+        always {
+            // cleanWs needs a node — run it on the built-in node
+            node('built-in') {
+                cleanWs()
+            }
+        }
     }
 }
