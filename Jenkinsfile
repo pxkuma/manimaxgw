@@ -60,7 +60,7 @@ pipeline {
 
         stage('Deploy') {
             // only runs on main — SSH into EC2, pull latest, restart containers
-            when { branch 'main' }
+            when { expression { env.GIT_BRANCH == 'origin/main' } }
             agent { label 'built-in' }
             steps {
                 sshagent(credentials: ['ec2-ssh-key']) {
