@@ -23,11 +23,11 @@ pipeline {
 
         stage('Renderer: Check') {
             agent {
-                docker { image 'python:3.11-slim'; reuseNode true }
+                docker { image 'python:3.11-slim'; args '-e HOME=/tmp'; reuseNode true }
             }
             steps {
                 dir('renderer') {
-                    sh 'pip install --quiet fastapi uvicorn sse-starlette httpx'
+                    sh 'pip install --quiet --user fastapi uvicorn sse-starlette httpx'
                     // basic syntax check, swap for pytest when tests are added
                     sh 'python -m py_compile auto_video.py renderer_api.py'
                 }
