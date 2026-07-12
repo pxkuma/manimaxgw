@@ -38,7 +38,7 @@ pipeline {
             agent {
                 docker {
                     image 'sonarsource/sonar-scanner-cli:latest'
-                    args  '--entrypoint=""'
+                    args  '--entrypoint="" -e SONAR_USER_HOME=/tmp/.sonar'
                     reuseNode true
                 }
             }
