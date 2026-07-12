@@ -64,3 +64,4 @@ Tex/
 texts/
 .env.ec2
 *.pem
+web/node_modules/

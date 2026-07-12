@@ -16,7 +16,7 @@ pipeline {
             }
             steps {
                 dir('web') {
-                    sh 'npm ci || npm install'
+                    sh 'npm ci --cache /tmp/.npm || npm install --cache /tmp/.npm'
                 }
             }
         }
