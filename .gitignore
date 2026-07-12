@@ -63,3 +63,4 @@ temp_*.py
 Tex/
 texts/
 .env.ec2
+*.pem
