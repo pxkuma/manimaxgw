@@ -4,7 +4,7 @@ pipeline {
 
     environment {
         EC2_USER  = 'ubuntu'
-        EC2_HOST  = 'http://13.48.106.251/'
+        EC2_HOST  = '13.48.106.251'
         REPO_PATH = '/home/ubuntu/vrihi'
     }
 
