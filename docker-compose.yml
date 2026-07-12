@@ -12,10 +12,11 @@ services:
       - OLLAMA_HOST=0.0.0.0
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434/"]
+      test: ["CMD", "ollama", "list"]
       interval: 30s
       timeout: 10s
       retries: 5
+      start_period: 30s
 
   # GPU variant — docker compose --profile nvidia up -d
   ollama-nvidia:
@@ -37,10 +38,11 @@ services:
               capabilities: [gpu]
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434/"]
+      test: ["CMD", "ollama", "list"]
       interval: 30s
       timeout: 10s
       retries: 5
+      start_period: 30s
 
   # Intel Arc variant — docker compose --profile intel up -d
   ollama-intel:
@@ -59,10 +61,11 @@ services:
       - video
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434/"]
+      test: ["CMD", "ollama", "list"]
       interval: 30s
       timeout: 10s
       retries: 5
+      start_period: 30s
 
   # ── 2. Renderer — Python / Manim / ffmpeg video pipeline ──────────────────
   renderer:
