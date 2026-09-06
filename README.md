@@ -1,6 +1,6 @@
 # Vrihi — AI Video Generator (Manim + Edge-TTS + DeepSeek)
 
-This project provides a fully automated pipeline for generating highly educational, aesthetic, YouTube-style technical explainer clips. By leveraging the **DeepSeek v3.1 (671B)** model via **Ollama**, the `edge-tts` speech synthesizer, and the **Manim** animation engine, it builds cinematic chapter-based video explanations from just a single topic prompt.
+Yo This project provides a fully automated pipeline for generating highly educational, aesthetic, YouTube-style technical explainer clips. By leveraging the **DeepSeek v3.1 (671B)** model via **Ollama**, the `edge-tts` speech synthesizer, and the **Manim** animation engine, it builds cinematic chapter-based video explanations from just a single topic prompt.
 
 It comes with two main modes of operation:
 1. **AI Prompt-to-Video Mode** (`auto_video.py`)
